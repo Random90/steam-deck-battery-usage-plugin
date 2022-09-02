@@ -1,4 +1,4 @@
-name = "Steam Deck Battery Usage Crankshaft Plugin"
+name = "Battery Usage Stats Plugin"
 version = "0.1"
 link = "https://github.com/Random90/steam-deck-battery-usage-plugin"
 source = "https://github.com/Random90/steam-deck-battery-usage-plugin"
@@ -17,7 +17,7 @@ link = "https://github.com/Random90"
 	[entrypoints.deck]
 	library = true
 	menu = false
-	quick-access = false
+	quick-access = true
 
 [store]
 description = """
