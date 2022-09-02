@@ -1,25 +1,26 @@
-name = "TODO"
-version = "TODO"
-link = "TODO"
-source = "TODO"
-min-crankshaft-version = "0.2.2"
+name = "Steam Deck Battery Usage Crankshaft Plugin"
+version = "0.1"
+link = "https://github.com/Random90/steam-deck-battery-usage-plugin"
+source = "https://github.com/Random90/steam-deck-battery-usage-plugin"
+min-crankshaft-version = "0.2.4"
 
 [author]
-name = "TODO"
-link = "TODO"
+name = "Grzegorz Czernatowicz"
+link = "https://github.com/Random90"
 
 [entrypoints]
 
 	[entrypoints.desktop]
-	library = false
+	library = true
 	menu = false
 
 	[entrypoints.deck]
-	library = false
+	library = true
 	menu = false
 	quick-access = false
 
 [store]
 description = """
-TODO
+Better battery stats for steam deck.
+Monitors battery usage since last charging. 
 """

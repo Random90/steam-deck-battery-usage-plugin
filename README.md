@@ -1,4 +1,4 @@
-# crankshaft-plugin-template
+# Steam Deck Battery Usage Crankshaft Plugin
 
-For a guide on creating your own plugin, please see the
-[Crankshaft documentation](https://crankshaft.space/docs);
+Better battery stats for steam deck.
+Monitors battery usage since last charging. 
