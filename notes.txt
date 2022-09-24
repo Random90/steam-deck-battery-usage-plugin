@@ -3,6 +3,11 @@ battery stats methods:
 BATTERY INFO
 $ upower -i `upower -e | grep 'BAT'` 
 finds device battery and displays some info
+filtering multiple stats:
+upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "state|to\ full|percentage"'
+dis/charge rate:
+upower -i /org/freedesktop/UPower/devices/battery_BAT0| grep -E "energy"'
+
 energy-rate:         1.7941 W
 
 use this instead /sys/class/power_supply 
