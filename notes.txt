@@ -1,0 +1,31 @@
+battery stats methods:
+
+BATTERY INFO
+$ upower -i `upower -e | grep 'BAT'` 
+finds device battery and displays some info
+energy-rate:         1.7941 W
+
+use this instead /sys/class/power_supply 
+
+BATTERY HISTORY
+cat /var/lib/upower/history-rate-MWL32b-40.dat 
+where MWL32b is model from upower
+
+output:
+1664039167      2.079   charging
+1664039287      1.979   charging
+1664039317      1.917   charging
+1664039319      1.794   fully-charged
+
+timestamp (every few minutes), rate (W), state
+
+might be useful for displaying longer history graph
+TODO updates in history not too often, check if upower has fresh data on every call. Test if plugin interval callbacks works in background. If not, upower history should be enough for game battery usage analisis for now.
+
+
+cat /var/lib/upower/history-charge-MWL32b-40.dat 
+1664010068      95.000  discharging
+1664012297      94.000  discharging
+1664012450      93.000  discharging
+
+updates every % or after status change
