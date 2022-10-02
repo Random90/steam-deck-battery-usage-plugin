@@ -1,85 +1,75 @@
 import { SMM } from '@crankshaft/types';
+import { BATTERY_STATE } from './constants';
 
 const PLUGIN_ID = 'steam-deck-battery-usage-plugin';
 
+let statusRef: HTMLElement;
+let powerRef: HTMLElement;
+let capacityRef: HTMLElement;
+
+let timers: number[] = [];
+
+let currentStatus = BATTERY_STATE.UNKNOWN;
+let currentPower = 0;
+let capacity = '0%';
+
 export const load = (smm: SMM) => {
+  const render = async (smm: SMM, root: HTMLElement) => {
+    timers.forEach(timer => clearInterval(timer));
+    console.log('loaded smm', smm);
+    console.log('open the windows too', window);
+   
+    createUI(smm, root);
+    attachIntervalHandlers(smm);
+  }
+
   smm.MenuManager.addMenuItem({
     id: PLUGIN_ID,
     label: 'Battery Usage Stats',
-    render: async (smm: SMM, root: HTMLElement) => {
-      console.log('loaded smm', smm);
-      console.log('open the windows too', window);
-     
-      attachClock(root);
-      attachCurrentGameInfo(smm, root);
-      attachPowerUsage(smm, root);
-      attachBatteryStatus(smm, root);
-      attachLastPluginLoad(smm, root);
-    },
+    render
   });
+
+  // smm.InGameMenu.addMenuItem({
+  //   id: PLUGIN_ID,
+  //   title: 'Battery Usage Stats',
+  //   render
+  // });
 };
 
 export const unload = (smm: SMM) => {
+  console.log('unloading');
+  console.log('timers', timers);
   smm.MenuManager.removeMenuItem('steam-deck-battery-usage-plugin');
+  // smm.InGameMenu.removeMenuItem('steam-deck-battery-usage-plugin');
+  timers.forEach(timer => clearInterval(timer));
 };
 
-const getBatteryInfo = async (smm: SMM, type: string) => {
+const updateCurrentPower = async (smm: SMM) => {
   try {
-    // @TODO check also for BAT0
-    const output = await smm.FS.readFile(`/sys/class/power_supply/BAT1/${type}`);
-    return output;
+    let result = await smm.Exec.run('bash', ['-c', "upower -i `upower -e | grep 'BAT'` | grep -E \"energy-rate\" | awk '{print $2}'"]);
+    currentPower = +result.stdout;
+    powerRef.innerText = currentPower + ' W';
   } catch (err) {
     console.error(err);
-    smm.Toast.addToast('Error getting battery status');
-    return 'Unknown';
+    smm.Toast.addToast('Error getting battery status'); 
   }
 };
 
-const attachBatteryStatus = async (smm: SMM, root: HTMLElement) => {
-  const status = document.createElement('p');
-  root.appendChild(status);
-  status.innerText = await getBatteryInfo(smm, 'status');
-  
-  setInterval(async () => {
-    status.innerText = await getBatteryInfo(smm, 'status');
-  }, 10000);
+const attachIntervalHandlers = (smm: SMM) => {
+  timers.push(setInterval(async () => {
+    await updateCurrentPower(smm);
+  }, 5000));
 }
 
-const attachPowerUsage = (smm: SMM, root: HTMLElement) => {
-  const powerUsage = document.createElement('p');
-  root.appendChild(powerUsage);
+const createUI = (smm: SMM, root: HTMLElement) => {
+  statusRef = document.createElement('p');
+  root.appendChild(statusRef);
+  statusRef.innerText = currentStatus;
 
-  setInterval(async () => {
-    const current = await getBatteryInfo(smm, 'current_now');
-    const voltage = await getBatteryInfo(smm, 'voltage_now');
-    const power = ((parseInt(current) * parseInt(voltage)) / 10^12).toFixed(2);
-    powerUsage.innerText = power + ' W';
-  }, 1000);
+  powerRef = document.createElement('p');
+  root.appendChild(powerRef);
+  powerRef.innerText = currentPower + ' W';
+
+  capacityRef = document.createElement('p');
+  root.appendChild(capacityRef);
 }
-
-const attachClock = (root: HTMLElement) => {
-  const currentTime = document.createElement('p');
-  root.appendChild(currentTime);
-
-  setInterval(() => {
-    currentTime.innerText = new Date().toLocaleString();
-  }, 1000);
-};
-
-const attachCurrentGameInfo = (smm: SMM, root: HTMLElement) => {
-  const currentGame = document.createElement('p');
-  root.appendChild(currentGame);
-  // @TODO will it update on every quick menu open?
-  const game = smm['_currentAppName'] ?? 'Not in a game';
-  currentGame.innerText = game;
-}
-
-const attachLastPluginLoad = async (smm: SMM, root: HTMLElement) => {
-  const lastPluginLoad = document.createElement('p');
-  root.appendChild(lastPluginLoad);
-  const lastLoad = await smm.Store.get(PLUGIN_ID, 'lastPluginLoad')
-  lastPluginLoad.innerText = lastLoad ? new Date(+lastLoad).toLocaleString() : 'Never';
-  smm.Store.set(PLUGIN_ID, 'lastPluginLoad', new Date().getTime().toString());
-}
-
-

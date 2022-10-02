@@ -1,0 +1,9 @@
+Run crankshaft from terminal
+flatpak run space.crankshaft.Crankshaft
+
+Enabling global node/npm commands:
+
+sudo steamos-readonly disable
+sudo ln -s /home/deck/Documents/CrankshaftPluginProject/node-v16.17.0-linux-x64/bin/node /usr/bin/node
+sudo ln -s /home/deck/Documents/CrankshaftPluginProject/node-v16.17.0-linux-x64/bin/npm /usr/bin/npm
+sudo steamos-readonly enable
